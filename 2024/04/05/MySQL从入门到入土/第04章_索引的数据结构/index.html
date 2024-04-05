@@ -1,0 +1,748 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>四、索引的数据结构 | Leo的博客</title><meta name="author" content="Leo"><meta name="copyright" content="Leo"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="1. 为什么使用索引  假如给数据使用 二叉树 这样的数据结构进行存储，如下图所示   2、索引及其优缺点2.1 索引概述 2.2 优点 类似大学图书馆建书目索引，提高数据检索的效率，&#x3D;&#x3D;降低 数据库的 IO 成本&#x3D;&#x3D; 这也是创建索引的主要的原因。 通过创建唯一索引，可以保证数据库表中每一行 数据的唯一性 (唯一约束) 在实现数据的参考完整性方面，可以 加速">
+<meta property="og:type" content="article">
+<meta property="og:title" content="四、索引的数据结构">
+<meta property="og:url" content="https://blog.dalicoding.fun/2024/04/05/MySQL%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/%E7%AC%AC04%E7%AB%A0_%E7%B4%A2%E5%BC%95%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/index.html">
+<meta property="og:site_name" content="Leo的博客">
+<meta property="og:description" content="1. 为什么使用索引  假如给数据使用 二叉树 这样的数据结构进行存储，如下图所示   2、索引及其优缺点2.1 索引概述 2.2 优点 类似大学图书馆建书目索引，提高数据检索的效率，&#x3D;&#x3D;降低 数据库的 IO 成本&#x3D;&#x3D; 这也是创建索引的主要的原因。 通过创建唯一索引，可以保证数据库表中每一行 数据的唯一性 (唯一约束) 在实现数据的参考完整性方面，可以 加速">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/images/2023/7/202403311909521.jpg">
+<meta property="article:published_time" content="2024-04-05T06:24:38.000Z">
+<meta property="article:modified_time" content="2024-04-05T06:30:19.363Z">
+<meta property="article:author" content="Leo">
+<meta property="article:tag" content="MySQL">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/images/2023/7/202403311909521.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://blog.dalicoding.fun/2024/04/05/MySQL%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/%E7%AC%AC04%E7%AB%A0_%E7%B4%A2%E5%BC%95%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css?v=4.13.0"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.5.1/css/all.min.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.min.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: {"appId":"00PKU8B7R6","apiKey":"058cbcb1db57036717778c874da0ef87","indexName":"blog-leo","hits":{"per_page":10},"languages":{"input_placeholder":"搜索文章","hits_empty":"找不到您查询的内容：${query}","hits_stats":"找到 ${hits} 条结果，用时 ${time} 毫秒"}},
+  localSearch: {"path":"/search.xml","preload":false,"top_n_per_article":1,"unescape":false,"languages":{"hits_empty":"找不到您查询的内容：${query}","hits_stats":"共找到 ${hits} 篇文章"}},
+  translate: undefined,
+  noticeOutdate: {"limitDay":365,"position":"top","messagePrev":"It has been","messageNext":"days since the last update, the content of the article may be outdated."},
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: true,
+    post: true
+  },
+  runtime: '天',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: {"limitCount":50,"languages":{"author":"作者: Leo","link":"链接: ","source":"来源: Leo的博客","info":"著作权归作者所有。商业转载请联系作者获得授权，非商业转载请注明出处。"}},
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid@4.11.1/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: true,
+  percent: {
+    toc: true,
+    rightside: true,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '四、索引的数据结构',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2024-04-05 14:30:19'
+}</script><script>(win=>{
+      win.saveToLocal = {
+        set: (key, value, ttl) => {
+          if (ttl === 0) return
+          const now = Date.now()
+          const expiry = now + ttl * 86400000
+          const item = {
+            value,
+            expiry
+          }
+          localStorage.setItem(key, JSON.stringify(item))
+        },
+      
+        get: key => {
+          const itemStr = localStorage.getItem(key)
+      
+          if (!itemStr) {
+            return undefined
+          }
+          const item = JSON.parse(itemStr)
+          const now = Date.now()
+      
+          if (now > item.expiry) {
+            localStorage.removeItem(key)
+            return undefined
+          }
+          return item.value
+        }
+      }
+    
+      win.getScript = (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        script.onerror = reject
+        script.onload = script.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          script.onload = script.onreadystatechange = null
+          resolve()
+        }
+
+        Object.keys(attr).forEach(key => {
+          script.setAttribute(key, attr[key])
+        })
+
+        document.head.appendChild(script)
+      })
+    
+      win.getCSS = (url, id = false) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onerror = reject
+        link.onload = link.onreadystatechange = function() {
+          const loadState = this.readyState
+          if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+          link.onload = link.onreadystatechange = null
+          resolve()
+        }
+        document.head.appendChild(link)
+      })
+    
+      win.activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+        if (t === 'dark') activateDarkMode()
+        else if (t === 'light') activateLightMode()
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+      const detectApple = () => {
+        if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+          document.documentElement.classList.add('apple')
+        }
+      }
+      detectApple()
+    })(window)</script><link rel="stylesheet" href="/css/center-atom.css"><link rel="stylesheet" href="/css/custom.css" media="defer" onload="this.media='all'"><meta name="generator" content="Hexo 7.1.1"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><script>(()=>{
+  const $loadingBox = document.getElementById('loading-box')
+  const $body = document.body
+  const preloader = {
+    endLoading: () => {
+      $body.style.overflow = ''
+      $loadingBox.classList.add('loaded')
+    },
+    initLoading: () => {
+      $body.style.overflow = 'hidden'
+      $loadingBox.classList.remove('loaded')
+    }
+  }
+
+  preloader.initLoading()
+  window.addEventListener('load',() => { preloader.endLoading() })
+
+  if (true) {
+    document.addEventListener('pjax:send', () => { preloader.initLoading() })
+    document.addEventListener('pjax:complete', () => { preloader.endLoading() })
+  }
+})()</script><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/images/2023/7/202403221853832.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">24</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><hr class="custom-hr"/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/comments/"><i class="fa-fw fas fa-comments"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/images/2023/7/202403311909521.jpg')"><nav id="nav"><span id="blog-info"><a href="/" title="Leo的博客"><img class="site-icon" src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/images/2023/7/202404041655130.png"/><span class="site-name">Leo的博客</span></a></span><div id="menus"><div id="search-button"><a class="site-page social-icon search" href="javascript:void(0);"><i class="fas fa-search fa-fw"></i><span> 搜索</span></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fa fa-heartbeat"></i><span> 清单</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> 音乐</span></a></li><li><a class="site-page child" href="/Gallery/"><i class="fa-fw fas fa-images"></i><span> 照片</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> 电影</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/comments/"><i class="fa-fw fas fa-comments"></i><span> 留言板</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><a class="site-page" href="javascript:void(0);"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">四、索引的数据结构</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2024-04-05T06:24:38.000Z" title="发表于 2024-04-05 14:24:38">2024-04-05</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2024-04-05T06:30:19.363Z" title="更新于 2024-04-05 14:30:19">2024-04-05</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">8.1k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>25分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="四、索引的数据结构"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 id="1-为什么使用索引"><a href="#1-为什么使用索引" class="headerlink" title="1. 为什么使用索引"></a>1. 为什么使用索引</h1><p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207191612413.png" alt="image-20220714094507900"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171922032.png" alt="image-20220714094315112"></p>
+<p>假如给数据使用 <code>二叉树</code> 这样的数据结构进行存储，如下图所示</p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171922692.png" alt="image-20220714095339210"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207191612830.png" alt="image-20220714095625048"></p>
+<h1 id="2、索引及其优缺点"><a href="#2、索引及其优缺点" class="headerlink" title="2、索引及其优缺点"></a>2、索引及其优缺点</h1><h2 id="2-1-索引概述"><a href="#2-1-索引概述" class="headerlink" title="2.1 索引概述"></a>2.1 索引概述</h2><p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171922811.png" alt="image-20220714100123298"></p>
+<h2 id="2-2-优点"><a href="#2-2-优点" class="headerlink" title="2.2 优点"></a>2.2 优点</h2><ol>
+<li>类似大学图书馆建书目索引，提高数据检索的效率，&#x3D;&#x3D;降低 数据库的 IO 成本&#x3D;&#x3D; 这也是创建索引的主要的原因。</li>
+<li>通过创建唯一索引，可以保证数据库表中每一行 <code>数据的唯一性</code> (唯一约束)</li>
+<li>在实现数据的参考完整性方面，可以 <code>加速表和表之间的连接</code>。换句话说，对于有依赖关系的子表和父表联合查询时，可以提高查询速度。</li>
+<li>在使用分组和排序子句进行数据查询时，可以显著<code>减少查询中分组和排序的时间</code>，降低了 CPU 的消耗。</li>
+</ol>
+<h2 id="2-3-缺点"><a href="#2-3-缺点" class="headerlink" title="2.3 缺点"></a>2.3 缺点</h2><p>增加索引也有许多不利的方面，主要表现在如下几个方面:</p>
+<ol>
+<li>创建索引和维护索引要 <code>耗费时间</code> （因为索引是排好序的），并且随着数据量的增加，所耗费的时间也会增加。</li>
+<li>索引需要占 磁盘空间，除了数据表占数据空间之 外，每一个索引还要占一定的物理空间，<code>存储在磁盘上</code> ，如果有大量的索引，索引文件就可能比数据文件更快达到最大文件尺寸。</li>
+<li>虽然索引大大提高了查询速度，同时却会<code>降低更新表的速度</code>。当对表中的数据进行增加、删除和修改的时候，索引也要动态地维护，这样就降低了数据的维护速度。</li>
+</ol>
+<p><strong>因此，选择使用索引时，需要综合考虑索引的优点和缺点。</strong></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171922637.png" alt="image-20220714101826957"></p>
+<h1 id="3-InnoDB-中索引的推演"><a href="#3-InnoDB-中索引的推演" class="headerlink" title="3. InnoDB 中索引的推演"></a>3. InnoDB 中索引的推演</h1><h2 id="3-1-索引之前的查找"><a href="#3-1-索引之前的查找" class="headerlink" title="3.1 索引之前的查找"></a>3.1 索引之前的查找</h2><p>先来看一个精确匹配的例子：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">SELECT [列名列表] FROM 表名 WHERE 列名 = xxx;</span><br></pre></td></tr></table></figure>
+
+<h3 id="3-1-1-在一个页中的查找"><a href="#3-1-1-在一个页中的查找" class="headerlink" title="3.1.1 在一个页中的查找"></a>3.1.1 在一个页中的查找</h3><p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171923988.png" alt="image-20220714102440500"></p>
+<p><strong>注意：</strong></p>
+<ul>
+<li><p>数据表中记录之间物理上是不连续的，但是逻辑上是连续的，之间通过单链表进行连接；数据页之间通过双向链表进行连接</p>
+</li>
+<li><p>以主键为搜索条件：$O(log2^n)$，以其他列为搜索条件：$O(n)$</p>
+</li>
+</ul>
+<h3 id="3-1-2-在很多页中查找"><a href="#3-1-2-在很多页中查找" class="headerlink" title="3.1.2 在很多页中查找"></a>3.1.2 在很多页中查找</h3><p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171923474.png" alt="image-20220714103545824"></p>
+<p>在没有索引的情况下，不论是根据主键列或者其他列的值进行查找，由于我们并不能快速的定位到记录所在的页，所以只能 <code>从第一个页</code> 沿着 <code>双向链表</code>一直往下找，在每一个页中根据我们上面的查找方式去查找指定的记录。因为要遍历所有的数据页，所以这种方式显然是 <code>超级耗时</code> 的。此时 <code>索引</code> 应运而生。</p>
+<p>我们可以联想下学校的图书馆：所有书架上有着对应的编号，每个书架中有着分区从A-Z。借书时，先根据书的类型找到对应的书架，再从书架中对应的分区找到目标书籍。</p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171923442.png" alt="image-20220714103858008"></p>
+<h2 id="3-2-设计索引"><a href="#3-2-设计索引" class="headerlink" title="3.2 设计索引"></a>3.2 设计索引</h2><p>建一个表：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; CREATE TABLE index_demo(</span><br><span class="line">        -&gt; c1 INT,</span><br><span class="line">        -&gt; c2 INT,</span><br><span class="line">    -&gt;     c3 CHAR(1),</span><br><span class="line">    -&gt;     PRIMARY KEY(c1)</span><br><span class="line">    -&gt; ) ROW_FORMAT = Compact;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>这个新建的 <code>index_demo</code> 表中有 2 个 INT 类型的列，1 个 CHAR(1) 类型的列，而且我们规定了 c1 列为主键， 这个表使用 <code>Compact</code> 行格式来实际存储记录的。这里我们简化了 index_demo 表的行格式示意图：</p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171923843.png" alt="image-20220714104547667"></p>
+<p>我们只在示意图里展示记录的这几个部分：</p>
+<ul>
+<li><code>record_type</code>：记录头信息的一项属性，<strong>表示记录的类型</strong>， <code>0</code> 表示普通记录、 <code>2</code> 表示最小记 录、 <code>3</code> 表示最大记录、 <code>1</code>  表示目录项的记录，暂时还没用过，下面讲。</li>
+<li><code>next_record</code>：记录头信息的一项属性，<strong>表示下一条地址相对于本条记录的地址偏移量</strong>，我们用<br>箭头来表明下一条记录是谁。（用来保证数据逻辑上的连续）</li>
+<li><code>各个列的值</code>：这里只记录在 <code>index_demo</code> 表中的三个列，分别是 <code>c1 、 c2 和 c3</code>。</li>
+<li><code>其他信息</code>：除了上述 3 种信息以外的所有信息，包括其他隐藏列的值以及记录的额外信息。</li>
+</ul>
+<p>将记录格式示意图的其他信息项暂时去掉并把它竖起来的效果就是这样：</p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171923379.png" alt="image-20220714104641376"></p>
+<p>把一些记录放到页里的示意图就是：</p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171923794.png" alt="image-20220714104659573"></p>
+<h3 id="3-2-1一个简单的索引设计方案"><a href="#3-2-1一个简单的索引设计方案" class="headerlink" title="3.2.1一个简单的索引设计方案"></a>3.2.1一个简单的索引设计方案</h3><p>我们在根据某个搜索条件查找一些记录时为什么要遍历所有的数据页呢？因为各个页中的记录并没有规律，我们并不知道我们的搜索条件匹配哪些页中的记录，所以不得不依次遍历所有的数据页。所以如果我们 <code>想快速的定位到需要查找的记录在哪些数据页</code> 中该咋办？我们可以为快速定位记录所在的数据页而 <code>建立一个目录</code> 。 建这个目录必须完成下边这些事：</p>
+<ul>
+<li><strong><font color=red>下一个数据页中用户记录的主键值必须大于上一个页中用户记录的主键值。</font></strong></li>
+</ul>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171923427.png" alt="image-20220714112538569"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171923153.png" alt="image-20220714112856589"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171923762.png" alt="image-20220714113025543"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207191613261.png" alt="image-20220714113113065"></p>
+<ul>
+<li><strong><font color=red>给所有的页建立一个目录项。</font></strong></li>
+</ul>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171923242.png" alt="image-20220714113248419"></p>
+<p><strong>注意：</strong>不建立目录项前，每次进行查询（插入）数据时，都要从前往后一个个数据页、一条条记录查找。需要先加载数据页，再二分查找对应的数据。甚至有时候，加载数据页的速度比查找速度还耗时，这样就非常得不偿失了。才有了 为所有的页建立目录项的操作。</p>
+<p><strong><font color=blue>所以我们为上边几个页做好的目录就像这样子：</font></strong></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171923741.png" alt="image-20220714113526840"></p>
+<p>以 <code>页 28</code> 为例，它对应 <code>目录项 2</code> ，这个目录项中包含着该页的页号 <code>28</code> 以及该页中用户记录的最小主键值 <code>5</code> 。我们只需要把几个目录项在物理存储器上连续存储（比如：<strong>数组</strong>），就可以实现根据主键值快速查找某条记录的功能了。比如：查找主键值为 <code>20</code> 的记录，具体查找过程分两步：</p>
+<ol>
+<li>先从目录项中根据 <code>二分法</code> 快速确定出主键值为 <code>20</code> 的记录在 <code>目录项 3</code> 中（因为 12 &lt; 20 &lt; 209 ），它对应的页是 <code>页 9</code>。</li>
+<li>再根据前边说的在页中查找记录的方式（二分法）去 <code>页 9</code> 中定位具体的记录。</li>
+</ol>
+<p>至此，针对数据页做的简易目录就搞定了。这个目录有一个别名，称为&#x3D;&#x3D;索引&#x3D;&#x3D; 。</p>
+<h3 id="3-2-2-InnoDB-中的索引方案"><a href="#3-2-2-InnoDB-中的索引方案" class="headerlink" title="3.2.2 InnoDB 中的索引方案"></a>3.2.2 InnoDB 中的索引方案</h3><p>&#x3D;&#x3D;思考一下，我们之前的设计方案有什么问题？&#x3D;&#x3D; </p>
+<p>如下图：比如我们要插入三条数据且恰好在页28和页29之间的，那么需要重新创建个数据页，同时创建对应的目录项，但是目录项是保存在数组中的。目录项3、4都需要向后移动，然后才能插入新的目录项。这样的话效率是非常低的。</p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171923849.png" alt="image-20220714113526840"></p>
+<p>解决办法：为多个目录项建立目录页，目录项之间通过指针方式进行连接（链表），目录页上建立当前页的目录信息，便于后续的二分查找。同时目录项之间指针连接也方便进行插入和删除操作。</p>
+<p>具体细节看下面的第一次迭代！</p>
+<h4 id="①-迭代-1-次：目录项纪录的页"><a href="#①-迭代-1-次：目录项纪录的页" class="headerlink" title="① 迭代 1 次：目录项纪录的页"></a>① 迭代 1 次：目录项纪录的页</h4><p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171923731.png" alt="image-20220715184655930"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171923346.png" alt="image-20220715184437264"></p>
+<p>我们把前边使用到的目录项放到数据页中的样子就是这样：</p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171923523.png" alt="image-20220715182931843"></p>
+<p>从图中可以看出来，我们新分配了一个编号为 30 的页来专门存储目录项记录。这里再次强调 <code>目录项记录</code> 和普通的 <code>用户记录</code> 的<strong>不同点</strong>：</p>
+<ul>
+<li><code>目录项记录</code> 的 <code>record_type</code> 值是 1，而 <code>普通用户记录</code> 的 <code>record_type</code> 值是 0。</li>
+<li>目录项记录只有 <code>主键值和页的编号</code> 两个列，而普通的用户记录的列是用户自己定义的，可能包含很多列 ，另外还有 InnoDB 自己添加的隐藏列。</li>
+<li>了解：记录头信息里还有一个叫 <code>min_rec_mask</code> 的属性，只有在存储 <code>目录项记录</code> 的页中的主键值最小的<code>目录项记录</code> 的 <code>min_rec_mask</code> 值为 1 ，其他别的记录的 <code>min_rec_mask</code> 值都是 0 。</li>
+</ul>
+<p><strong>相同点：</strong>两者用的是一样的数据页，都会为主键值生成 <code>Page Directory</code> （页目录），从而在按照主键值进行查找时可以使用 <code>二分法</code> 来加快查询速度 (如果没有页目录，链表是无法进行 二分查找)</p>
+<p>现在以查找主键为 <code>20</code> 的记录为例，根据某个主键值去查找记录的步骤就可以大致拆分成下边两步：</p>
+<ol>
+<li>先到存储 <code>目录项记录</code>的页，也就是页 30 中通过 <code>二分法</code> 快速定位到对应目录项，因为 12 &lt; 20 &lt; 209，所以定位到对应的记录所在的页就是页 9。</li>
+<li>再到存储用户记录的页9中根据 <code>二分法</code> 快速定位到主键值为 20 的用户记录。</li>
+</ol>
+<p><strong>注意：</strong>建立目录页后，IO次数也会降低。比如上面的查找只有两次IO</p>
+<h4 id="②-迭代-2-次：多个目录项纪录的页"><a href="#②-迭代-2-次：多个目录项纪录的页" class="headerlink" title="② 迭代 2 次：多个目录项纪录的页"></a>② 迭代 2 次：多个目录项纪录的页</h4><p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171924274.png" alt="image-20220715194903736"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171924587.png"></p>
+<p>从图中可以看出，我们插入了一条主键值为 320 的用户记录之后需要两个新的数据页：</p>
+<ul>
+<li>为存储该用户记录而新生成了 <code>页 31</code> 。</li>
+<li>因为原先存储目录项记录的 <code>页 30 的容量已满</code>（我们前边假设只能存储 4 条目录项记录），所以不得不需要一个新的 <code>页 32</code> 来存放 <code>页 31</code> 对应的目录项。(目录页之间用双向链表连接)</li>
+</ul>
+<p>现在因为存储目录项记录的页不止一个，所以如果我们想根据主键值查找一条用户记录大致需要 3 个步骤，以查找主键值为 <code>20</code> 的记录为例：</p>
+<ol>
+<li><p>确定 <code>目录项记录页</code></p>
+<p>我们现在的存储目录项记录的页有两个，即 <code>页 30</code> 和 <code>页 32</code> ，又因为页 30 表示的目录项的主键值的范围是 <code>[1, 320)</code>，<code>页 32</code> 表示的目录项的主键值不小于 <code>320</code> ，所以主键值为 <code>20</code> 的记录对应的目录项记录在 <code>页 30</code> 中。</p>
+</li>
+<li><p>通过目录项记录页 <code>确定用户记录真实所在的页</code> 。在一个存储 <code>目录项记录</code> 的页中通过主键值定位一条目录项记录的方式说过了。</p>
+</li>
+<li><p>在真实存储用户记录的页中定位到具体的记录。</p>
+</li>
+</ol>
+<p><strong>存在的问题：</strong>查找数据第一步，判断数据是在哪个目录项记录页中时，由于目录项记录页之间是双链表连接的，所以只能从前往后进行遍历查找（<code>过程中IO次数较多</code>），之后找到了再二分查找到对应的数据页… </p>
+<p><strong>改进办法：</strong>&#x3D;&#x3D;为数据项记录页 建立目录页&#x3D;&#x3D;</p>
+<h4 id="③-迭代-3-次：目录项记录页的目录页"><a href="#③-迭代-3-次：目录项记录页的目录页" class="headerlink" title="③ 迭代 3 次：目录项记录页的目录页"></a>③ 迭代 3 次：目录项记录页的目录页</h4><p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207191613637.png" alt="image-20220715195038044"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171924115.png"></p>
+<p>如图，我们生成了一个存储更高级目录项的 <code>页 33</code> ，这个页中的两条记录分别代表页 30 和页 32，如果用户记录的主键值在 <code>[1, 320)</code> 之间，则到页 30 中查找更详细的目录项记录，如果主键值 <code>不小于 320</code> 的话，就到页 32 中查找更详细的目录项记录。</p>
+<p>我们可以用下边这个图来描述它：</p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171924978.png" alt="image-20220715191318626"></p>
+<p>这个数据结构，它的名称是 <code>B+ 树</code> 。</p>
+<h4 id="④-B-Tree"><a href="#④-B-Tree" class="headerlink" title="④ B+Tree"></a>④ B+Tree</h4><p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171924249.png" alt="image-20220715195450204"></p>
+<p>一个 B+ 树的节点其实可以分成好多层，规定最下边的那层，也就是存放我们用户记录的那层为第 <code>0</code> 层， 之后依次往上加。之前我们做了一个非常极端的假设：存放用户记录的页 <code>最多存放 3 条记录</code> ，存放目录项 记录的页 <code>最多存放 4 条记录</code> 。其实真实环境中一个页存放的记录数量是非常大的，假设所有存放用户记录 的叶子节点代表的数据页可以存放 <code>100 条用户记录</code> ，所有存放目录项记录的内节点代表的数据页可以存 放 <code>1000 条目录项记录</code> ，那么：</p>
+<ul>
+<li>如果 B+ 树只有 1 层，也就是只有 1 个用于存放用户记录的节点，最多能存放 <code>100</code> 条记录。</li>
+<li>如果 B+ 树有 2 层，最多能存放 <code>1000×100=10,0000</code>条记录。</li>
+<li>如果 B+ 树有 3 层，最多能存放 <code>1000×1000×100=1,0000,0000</code>条记录。 1亿</li>
+<li>如果 B+ 树有 4 层，最多能存放 <code>1000×1000×1000×100=1000,0000,0000</code>条记录。相当多的记录！！！ 1000亿</li>
+</ul>
+<p>你的表里能存放 <code>100000000000</code> 条记录吗？所以一般情况下，我们 <code>用到的 B+ 树都不会超过 4 层</code> ，那我们通过主键值去查找某条记录最多只需要做 4 个页面内的查找（查找 3 个目录项页和一个用户记录页），又因为在每个页面内有所谓的 <code>Page Directory</code> （页目录），所以在页面内也可以通过二分法实现快速定位记录。</p>
+<p>&#x3D;&#x3D;为啥B+ 树都不会超过 4 层呢？&#x3D;&#x3D;</p>
+<p><strong><font color=red>树的层次达到4的时候，可以存储的数据量足够多了（1000亿）。树的层次越低，IO次数就越少，从而效率越高</font></strong></p>
+<h2 id="3-3-常见索引概念"><a href="#3-3-常见索引概念" class="headerlink" title="3.3 常见索引概念"></a>3.3 常见索引概念</h2><p>索引按照物理实现方式，索引可以分为 2 种：&#x3D;&#x3D;聚簇（聚集）和非聚簇（非聚集）索引&#x3D;&#x3D;。我们也把非聚集索引称为二级索引或者辅助索引。</p>
+<h3 id="3-3-1-聚簇索引"><a href="#3-3-1-聚簇索引" class="headerlink" title="3.3.1 聚簇索引"></a>3.3.1 聚簇索引</h3><p><strong>特点：</strong></p>
+<ol>
+<li>使用记录主键值的大小进行记录和页的排序，这包括三个方面的含义:<ul>
+<li><code>页内</code> 的记录是按照主键的大小顺序排成一个 <code>单向链表</code> 。</li>
+<li>各个存放存放 <code>用户记录的页</code>，也是根据页中用户记录的主键大小顺序排成一个 <code>双向链表</code>.</li>
+<li>存放<code>目录项记录的页</code>分为不同的层次，在同一层次中的页也是根据页中目录项记录的主键大小顺序排成一个<code>双向链表</code></li>
+</ul>
+</li>
+<li><strong>B+ 树的叶子节点存储的是完整的用户记录。</strong><ul>
+<li>所谓完整的用户记录，就是指这个记录中存储了所有列的值（包括隐藏列）。</li>
+</ul>
+</li>
+</ol>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207191614852.png" alt="image-20220715232925683"></p>
+<p><strong>优点：</strong></p>
+<ul>
+<li><code>数据访问更快</code> ，因为聚簇索引将索引和数据保存在同一个 B+ 树中，因此从聚簇索引中获取数据比非聚簇索引更快</li>
+<li>聚簇索引对于主键的 <code>排序查找</code> 和 <code>范围查找</code> 速度非常快 (因为数据本身就是有序的)</li>
+<li>按照聚簇索引排列顺序，查询显示一定范围数据的时候，由于数据都是紧密相连，数据库不用从多个数据块中提取数据，所以 <code>节省了大量的 io 操作</code> 。</li>
+</ul>
+<p><strong>缺点:</strong></p>
+<ul>
+<li><code>插入速度严重依赖于插入顺序</code> ，按照主键的顺序插入是最快的方式，否则将会出现页分裂，严重影响性能。因此，对于 InnoDB 表，我们一般都会定义一个 <strong>自增的 ID 列为主键</strong> <ul>
+<li>前半句分析。比如我们在<code>上上幅图</code>中页9和页20中间插入个 主键为200的数据，这就会导致页20及其后面的需要进行逻辑上的移动，然后插入新数据。同时上层目录页中的数据以及指针也可能变动，依次往上推，从而会降低性能！</li>
+<li>后半句思考：删除的时候通常不真正删除，而是弄一个删除标记是不是和这个有关？</li>
+</ul>
+</li>
+<li>更新主键的代价很高 ，因为将会导致被更新的行移动。因此，对于 InnoDB 表，我们一般定义<strong>主键为不可更新</strong><ul>
+<li>比如我们将 <code>上上幅图</code> 中的 209 改为 409，也会导致数据的移动。同时对上层目录页中的数据以及指针也可能变动，依次往上推，从而影响性能！</li>
+</ul>
+</li>
+<li><code>二级索引访问需要两次索引查找</code> ，第一次找到主键值，第二次根据主键值找到行数据 （下文细讲）</li>
+</ul>
+<p><strong>限制：</strong></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171924851.png" alt="image-20220715233902014"></p>
+<h3 id="3-3-2-二级索引（辅助索引、非聚簇索引）"><a href="#3-3-2-二级索引（辅助索引、非聚簇索引）" class="headerlink" title="3.3.2 二级索引（辅助索引、非聚簇索引）"></a>3.3.2 二级索引（辅助索引、非聚簇索引）</h3><p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171933867.png" alt="image-20220715234340429"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171926371.png" alt="image-20220715231734736"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171927771.png" alt="image-20220715234935943"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171927908.png" alt="image-20220715235447064"></p>
+<p><strong>概念：&#x3D;&#x3D;回表&#x3D;&#x3D;</strong> 我们根据这个以 c2 列大小排序的 B+ 树只能确定我们要查找记录的主键值，所以如果我们想根据 c2 列的值查找到完整的用户记录的话，仍然需要到 <code>聚簇索引</code> 中再查一遍，这个过程称为 <code>回表</code> 。也就是根据 &#x3D;&#x3D;c2 列的值查询一条完整的用户记录需要使用到 <code>2</code> 棵 B+ 树&#x3D;&#x3D;！</p>
+<p><strong><font color=red>问题：为什么我们还需要一次回表操作呢？直接把完整的用户记录放到叶子节点不 OK 吗？</font></strong></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171927961.png" alt="image-20220715235754879"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171927850.png" alt="image-20220715231752138"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171927931.png" alt="image-20220716000732454"></p>
+<p>第三点的解释：聚簇索引中存放的是记录的所有字段，一旦进行修改，聚簇索引上的数据是一定需要修改的。而非聚簇索引存放的是主键+单个字段，相对来说修改的少，效率也就高。</p>
+<h3 id="3-3-3-联合索引"><a href="#3-3-3-联合索引" class="headerlink" title="3.3.3 联合索引"></a>3.3.3 联合索引</h3><p>我们也可以同时以多个列的大小作为排序规则，也就是同时为多个列建立索引，比方说我们想让 B+ 树按照 <code>c2 和c3 列</code> 的大小进行排序，这个包含两层含义：</p>
+<ul>
+<li>先把各个记录和页按照 c2 列进行排序。</li>
+<li>在记录的 c2 列相同的情况下，采用 c3 列进行排序</li>
+</ul>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171927898.png"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171927913.png" alt="image-20220716002008182"></p>
+<p>注意一点，以 c2 和 c3 列的大小为排序规则建立的 B+ 树称为 &#x3D;&#x3D;联合索引 ，本质上也是一个二级索引&#x3D;&#x3D;。它的意思与分别为 c2 和 c3 列分别建立索引的表述是不同的，不同点如下:</p>
+<ul>
+<li>建立 <code>联合索引</code> 只会建立如上图一样的 1 棵 B+ 树。</li>
+<li>为 c2 和 c3 列分别建立索引会分别以 c2 和 c3 列的大小为排序规则建立 2 棵 B+ 树。</li>
+</ul>
+<h2 id="3-4-InnoDB-的-B-树索引的注意事项"><a href="#3-4-InnoDB-的-B-树索引的注意事项" class="headerlink" title="3.4 InnoDB 的 B+ 树索引的注意事项"></a>3.4 InnoDB 的 B+ 树索引的注意事项</h2><p><strong><font color=blue>1. 根页面位置万年不动</font></strong></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171927355.png" alt="image-20220717153401761"></p>
+<p><strong>注意：</strong>B+树的构建是自上往下构建的</p>
+<p><strong><font color=blue>2. 内节点中目录项记录的唯一性</font></strong></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171927754.png" alt="image-20220717154200568"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171927402.png" alt="image-20220717154111061"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207191618131.png" alt="image-20220717155054555"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171927042.png" alt="image-20220717154649228"></p>
+<p><strong>注意：</strong>页号虽然也可以保证列的唯一性，但是没有实际意义。而其他的列比如c3、c 4我们也不能保证唯一性。所以我们增添的是主键值，再进行判断时也是根据 <code>列号+主键 </code>来选择向哪一页插入数据</p>
+<p><strong><font color=blue>3. 一个页面最少存储 2 条记录</font></strong></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207191614926.png" alt="image-20220717155342368"></p>
+<h1 id="4-MyISAM-中的索引方案"><a href="#4-MyISAM-中的索引方案" class="headerlink" title="4. MyISAM 中的索引方案"></a>4. MyISAM 中的索引方案</h1><p><strong>B 树索引适用存储引擎如表所示：</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left"><strong>索引</strong> &#x2F; <strong>存储引擎</strong></th>
+<th align="left">MyISAM</th>
+<th align="left">InnoDB</th>
+<th align="left">Memory</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">B-Tree 索引</td>
+<td align="left">支持</td>
+<td align="left">支持</td>
+<td align="left">支持</td>
+</tr>
+</tbody></table>
+<p>即使多个存储引擎支持同一种类型的索引，但是他们的实现原理也是不同的。Innodb 和 MyISAM 默认的索引是 B-tree 索引；而 Memory 默认的索引是 Hash 索引。</p>
+<p>&#x3D;&#x3D;MyISAM 引擎使用 <code>B+Tree</code> 作为索引结构&#x3D;&#x3D;，叶子节点的 data 域存放的是 <code>数据记录的地址</code>  （所以MyISAM把索引和数据分开存储了）</p>
+<p><strong>注意：</strong> 在MySQL中，B 树实际上还是B+树。但是在选择谈到选择MySQL的数据结构时，这两者就区别大了</p>
+<h2 id="4-1-MyISAM-索引的原理"><a href="#4-1-MyISAM-索引的原理" class="headerlink" title="4.1 MyISAM 索引的原理"></a>4.1 MyISAM 索引的原理</h2><p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171927588.png" alt="image-20220717161900703"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171927035.png" alt="image-20220715231824610"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207191615572.png" alt="image-20220717162146794"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171927564.png" alt="image-20220715231837968"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207191616598.png" alt="image-20220717162348210"></p>
+<p><strong>注意：</strong>对于MYISAM来说，无论是主键索引还是非主键索引都属于非聚簇索引，因为数据和索引是分离的</p>
+<h2 id="4-2-MyISAM-与-InnoDB-对比"><a href="#4-2-MyISAM-与-InnoDB-对比" class="headerlink" title="4.2 MyISAM 与 InnoDB 对比"></a>4.2 MyISAM 与 InnoDB 对比</h2><p><strong><font color=red>MyISAM 的索引方式都是“非聚簇”的，与 InnoDB 包含 1 个聚簇索引是不同的</font></strong></p>
+<p><strong>两种引擎中索引的区别：</strong></p>
+<ol>
+<li>在 InnoDB 存储引擎中，我们只需要根据主键值对 <code>聚簇索引</code> 进行一次查找就能找到对应的记录，而在 <code>MyISAM</code> 中却需要进行一次 <code>回表</code> 操作，意味着 MyISAM 中建立的索引相当于全部都是 <code>二级索引</code> 。（<code>MyISAM</code>的回表就是根据地址到data表中查找数据）</li>
+<li>InnoDB 的数据文件本身就是索引文件，而 MyISAM 索引文件和数据文件是 <code>分离的</code> ，索引文件仅保存数据记录的地址。</li>
+<li>InnoDB 的非聚簇索引 data 域存储相应记录 <code>主键的值</code> ，而 MyISAM 索引记录的是 <code>地址</code> 。换句话说， InnoDB 的所有非聚簇索引都引用主键作为 data 域。</li>
+<li>MyISAM 的回表操作是十分 <code>快速</code> 的，因为是拿着地址偏移量直接到文件中取数据的，反观 InnoDB 是通过获取主键之后再去聚簇索引里找记录，虽然说也不慢，但还是比不上直接用地址去访问。</li>
+<li>InnoDB 要求表 <code>必须有主键 ( MyISAM 可以没有 )</code>。如果没有显式指定，则 MySQL 系统会自动选择一个可以非空且唯一标识数据记录的列作为主键。如果不存在这种列，则 MySQL 自动为 InnoDB 表生成一个隐含字段作为主键，这个字段长度为 6 个字节，类型为长整型。<ul>
+<li>InnoDB的主键是为了生成聚簇索引，所以必须有；MyISAM 中的索引都是非聚簇的，数据和索引分离，所以对MyISAM没有要求。但是为了查询方便，还是建议指定某一字段为主键，从而方便存储引擎为其构建索引，提升查询效率。</li>
+</ul>
+</li>
+</ol>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171928739.png" alt="image-20220717163934737"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171928059.png" alt="image-20220715231909478"></p>
+<h1 id="5-索引的代价"><a href="#5-索引的代价" class="headerlink" title="5. 索引的代价"></a>5. 索引的代价</h1><p>索引是个好东西，可不能乱建，它在空间和时间上都会有消耗：</p>
+<ul>
+<li><p><strong>空间上的代价</strong></p>
+<p>每建立一个索引都要为它建立一棵 B+ 树，每一棵 B+ 树的每一个节点都是一个数据页，一个页默认会占用 16KB 的存储空间，一棵很大的 B+ 树由许多数据页组成，那就是很大的一片存储空间。</p>
+</li>
+<li><p><strong>时间上的代价</strong></p>
+<p>每次对表中的数据进行 <code>增</code>、<code>删</code>、<code>改</code>操作时，都需要去修改各个 B+ 树索引。而且我们讲过，B+ 树每层节点都是按照索引列的值 <code>从小到大的顺序排序</code> 而组成了 <code>双向链表</code> 。不论是叶子节点中的记录，还是内节点中的记录（也就是不论是用户记录还是目录项记录）都是按照索引列的值从小到大的顺序而形成了一个单向链表。而增、删、改操作可能会对节点和记录的排序造成破坏，所以存储引擎需要额外的时间进行一些 <code>记录移位</code> ， <code>页面分裂</code> 、 <code>页面回收</code> 等操作来维护好节点和记录的排序。如果我们建了许多索引，每个索引对应的 B+ 树都要进行相关的维护操作，会给性能拖后腿。</p>
+</li>
+</ul>
+<blockquote>
+<p>一个表上索引建的越多，就会占用越多的存储空间，在增删改记录的时候性能就越差。为了建立又好又少的索引，我们得学学这些索引在哪些条件下起作用的。</p>
+</blockquote>
+<h1 id="6-MySQL-数据结构选择的合理性"><a href="#6-MySQL-数据结构选择的合理性" class="headerlink" title="6. MySQL 数据结构选择的合理性"></a>6. MySQL 数据结构选择的合理性</h1><p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207191616637.png" alt="image-20220717165213800"></p>
+<h2 id="6-1-全表遍历"><a href="#6-1-全表遍历" class="headerlink" title="6.1 全表遍历"></a>6.1 全表遍历</h2><p>这里都懒得说了（加载所有页到内存，进行遍历查找，非常耗时，性能极差）</p>
+<h2 id="6-2-Hash-结构"><a href="#6-2-Hash-结构" class="headerlink" title="6.2 Hash 结构"></a>6.2 Hash 结构</h2><p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171928395.png" alt="image-20220717170503380"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171928978.png" alt="image-20220715231924996"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171928498.png" alt="image-20220717171015638"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171928194.png" alt="image-20220715231940599"></p>
+<p>上图中哈希函数 h 有可能将两个不同的关键字映射到相同的位置，这叫做 <code>碰撞</code> ，在数据库中一般采用<code>链接法</code> 来解决。在链接法中，将散列到同一槽位的元素放在一个链表中，如下图所示：</p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171928762.png" alt="image-20220715231955539"></p>
+<p><strong><font color=red>Hash 结构效率高，那为什么索引结构要设计成树型呢？</font></strong></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171928921.png" alt="image-20220717171419076"></p>
+<p><strong>Hash 索引适用存储引擎如表所示：</strong></p>
+<table>
+<thead>
+<tr>
+<th align="left"><strong>索引</strong> &#x2F; <strong>存储引擎</strong></th>
+<th align="left">MyISAM</th>
+<th align="left">InnoDB</th>
+<th align="left">Memory</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">HASH 索引</td>
+<td align="left">不支持</td>
+<td align="left">不支持</td>
+<td align="left"><code>支持</code></td>
+</tr>
+</tbody></table>
+<p>&#x3D;&#x3D;<strong>Hash索引的适用性</strong>&#x3D;&#x3D;</p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171928321.png" alt="image-20220717172136557"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171928874.png" alt="image-20220715232011897"></p>
+<p>采用自适应 Hash 索引目的是方便根据 SQL 的查询条件加速定位到叶子节点，特别是当 B+ 树比较深的时候，通过自适应 Hash 索引可以明显提高数据的检索效率。</p>
+<p>我们可以通过 <code>innodb_adaptive_hash_index</code> 变量来查看是否开启了自适应 Hash，比如：</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mysql&gt; show variables like &#x27;%adaptive_hash_index&#x27;;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171928818.png" alt="image-20220715232023427"></p>
+<h2 id="6-3-二叉搜索树"><a href="#6-3-二叉搜索树" class="headerlink" title="6.3 二叉搜索树"></a>6.3 二叉搜索树</h2><p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171928584.png" alt="image-20220717181604411"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171928608.png" alt="image-20220715232037198"></p>
+<p>创造出来的二分搜索树如下图所示：</p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171928202.png" alt="image-20220715232048465"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171928642.png" alt="image-20220717182128622"></p>
+<h2 id="6-4-AVL-树"><a href="#6-4-AVL-树" class="headerlink" title="6.4 AVL 树"></a>6.4 AVL 树</h2><p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171929504.png" alt="image-20220717182241429"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171928128.png" alt="image-20220715232059135"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171929849.png" alt="image-20220717182343402"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171929985.png" alt="image-20220715232108965"></p>
+<p>你能看到此时树的高度降低了，当数据量N大的时候，以及树的分叉数M大的时候，M叉树的高度会远小于二叉树的高度(M&gt;2)。所以，我们需要把树<code>从“瘦高&quot;变&quot;矮胖”</code>。</p>
+<h2 id="6-5-B-Tree"><a href="#6-5-B-Tree" class="headerlink" title="6.5 B-Tree"></a>6.5 B-Tree</h2><p>B树的英文是Balance Tree,也就是&#x3D;&#x3D;多路平衡查找树&#x3D;&#x3D;。简写为B-Tree (注意横杠表示这两个单词连起来的意思，不是减号)。它的高度远小于平衡二叉树的高度。</p>
+<p>B 树的结构如下图所示：</p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171929257.png" alt="image-20220715232120451"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171929433.png" alt="image-20220717182836451"></p>
+<p>一个 M 阶的 B 树（M&gt;2）有以下的特性：</p>
+<ol>
+<li>根节点的儿子数的范围是 [2,M]。</li>
+<li>每个中间节点包含 k-1 个关键字和 k 个孩子，孩子的数量 &#x3D; 关键字的数量 +1，k 的取值范围为 [ceil（M &#x2F; 2）, M]。</li>
+<li>叶子节点包括 k-1 个关键字（叶子节点没有孩子），k 的取值范围为 [ceil（M &#x2F; 2）, M]。</li>
+<li>假设中间节点节点的关键字为：Key[1]，Key[2]，…，Key[k-1]，且关键字按照升序排序，即 Key[i] &lt; Key[i+1]。此时 k-1 个关键字相当于划分了 k 个范围，也就是对应着 k 个指针，即为：P[1]，P[2]，…，P[k]，其中 P[1] 指向关键字小于 Key[1] 的子树，P[i] 指向关键字属于 (Key[i-1], Key[i]）的子树，P[k] 指向关键字大于 Key[k-1] 的子树。</li>
+<li>所有叶子节点位于同一层。</li>
+</ol>
+<p>上面那张图所表示的 B 树就是一棵 3 阶的 B 树。我们可以看下磁盘块 2，里面的关键字为（8，12），它 有 3 个孩子 (3，5)，(9，10) 和 (13，15)，你能看到 (3，5) 小于 8，(9，10) 在 8 和 12 之间，而 (13，15) 大于 12，刚好符合刚才我们给出的特征。</p>
+<p>然后我们来看下如何用 B 树进行查找。假设我们想要 <code>查找的关键字是 9</code>，那么步骤可以分为以下几步：</p>
+<ol>
+<li>我们与根节点的关键字 (17，35)进行比较，9 小于 17 那么得到指针 P1;</li>
+<li>按照指针 P1 找到磁盘块 2，关键字为（8，12)，因为 9 在 8 和 12 之间，所以我们得到指针 P2;</li>
+<li>按照指针 P2 找到磁盘块 6，关键字为（9，10)，然后我们找到了关键字 9。</li>
+</ol>
+<p>你能看出来在 B 树的搜索过程中，我们比较的次数并不少，但如果把数据读取出来然后在内存中进行比较，这个时间就是可以忽略不计的。而读取磁盘块本身需要进行 I&#x2F;O 操作，消耗的时间比在内存中进行比较所需要的时间要多，是数据查找用时的重要因素。<code>B 树相比平衡二叉树来说磁盘 I/O 操作更少</code>， 在数据查询中比平衡二叉树效率要高。所以<code>只要树的高度足够低，IO 次数足够少，就可以提高查询性能</code> 。</p>
+<p><strong>小结</strong></p>
+<ol>
+<li><p>B树在插入和删除节点的时候如果导致树不平衡，就通过自动调整节点的位置来保持树的自平衡。</p>
+</li>
+<li><p>&#x3D;&#x3D;关键字集合分布在整棵树中，即叶子节点和非叶子节点都存放数据&#x3D;&#x3D;。搜索有可能在非叶子节点结束</p>
+</li>
+<li><p>其搜索性能等价于在关键字全集内做一次二分查找。</p>
+</li>
+</ol>
+<p><strong>再举例 1：</strong></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171929907.png" alt="image-20220715232133122"></p>
+<p><strong>注意：</strong>叶子节点和非叶子节点都存放数据。我们要查找C1:8，通过比较在磁盘块2中有对应的，那么数据就存在磁盘块2中</p>
+<h2 id="6-6-B-Tree"><a href="#6-6-B-Tree" class="headerlink" title="6.6 B+Tree"></a>6.6 B+Tree</h2><p>B+树也是一种多路搜索树，<code>基于B树做出了改进</code>，主流的DBMS都支持B+树的索引方式,比如MySQL。相比于B-Tree，&#x3D;&#x3D;B+Tree适合文件索引 系统&#x3D;&#x3D;。</p>
+<ul>
+<li>MySQL 官网说明：</li>
+</ul>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171929089.png" alt="image-20220715232146550"></p>
+<p><strong>B+ 树和 B 树的差异：</strong></p>
+<ol>
+<li>有 k 个孩子的节点就有 k 个关键字。也就是孩子数量 &#x3D; 关键字数，而 B 树中，孩子数量 &#x3D; 关键字数 +1。</li>
+<li>非叶子节点的关键字也会同时存在在子节点中，并且是在子节点中所有关键字的最大（或最小)。</li>
+<li>非叶子节点仅用于索引，不保存数据记录，跟记录有关的信息都放在叶子节点中。而 B 树中，<code>非叶子节点既保存索引，也保存数据记录</code> 。</li>
+<li>所有关键字都在叶子节点出现，叶子节点构成一个有序链表，而且叶子节点本身按照关键字的大小从小到大顺序链接。而B树中，叶子节点组成的链表是不完整的，还包含目录页中的数据</li>
+</ol>
+<p>下图就是一棵B+树，阶数为3，根节点中的关键字1、18、 35分别是子节点(1, 8，14) ，(18, 24, 31)和(35， 41， 53) 中的最小值。每一层父节点的关键字都会出现在下一层的子节点的关键字中，因此在叶子节点中包括了所有的关键字信息，并且每一个叶子节点都有一个指向下一个节点的指针，这样就形成了一个链表。</p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171929073.png" alt="image-20220717184500555"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207191617500.png" alt="image-20220717184652033"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171929217.png" alt="image-20220717184830228"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171929914.png" alt="image-20220717184924406"></p>
+<blockquote>
+<p>B 树和 B+ 树都可以作为索引的数据结构，在 MySQL 中采用的是 B+ 树。</p>
+<p>但 B 树和 B+ 树各有自己的应用场景，不能说 B+ 树完全比 B 树好，反之亦然。</p>
+</blockquote>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171929537.png" alt="image-20220717185506036"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171929115.png" alt="image-20220717185610352"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171929801.png" alt="image-20220717185938636"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171929401.png" alt="image-20220717190325041"></p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171929857.png" alt="image-20220717190638630"></p>
+<h2 id="6-7-R-树"><a href="#6-7-R-树" class="headerlink" title="6.7 R 树"></a>6.7 R 树</h2><p>R-Tree 在 MySQL 很少使用，仅支持 <code>geometry 数据类型</code> ，支持该类型的存储引擎只有 myisam、bdb、 innodb、ndb、archive 几种。举个 R 树在现实领域中能够解决的例子：查找 20 英里以内所有的餐厅。如果没有 R 树你会怎么解决？一般情况下我们会把餐厅的坐标（x,y）分为两个字段存放在数据库中，一个字段记录经度，另一个字段记录纬度。这样的话我们就需要遍历所有的餐厅获取其位置信息，然后计算是否满足要求。如果一个地区有 100 家餐厅的话，我们就要进行 100 次位置计算操作了，如果应用到谷歌、百度地图这种超大数据库中，这种方法便必定不可行了。R 树就很好的 <code>解决了这种高维空间搜索问题</code>。它把 B 树的思想很好的扩展到了多维空间，采用了 B 树分割空间的思想，并在添加、删除操作时采用合并、分解结点的方法，保证树的平衡性。因此，R 树就是一棵用来 <code>存储高维数据的平衡树</code> 。相对于 B-Tree，R-Tree 的优势在于范围查找。</p>
+<table>
+<thead>
+<tr>
+<th align="left"><strong>索引</strong> &#x2F; <strong>存储引擎</strong></th>
+<th align="left">MyISAM</th>
+<th align="left">InnoDB</th>
+<th align="left">Memory</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left">R-Tree 索引</td>
+<td align="left">支持</td>
+<td align="left">支持</td>
+<td align="left"><code>不支持</code></td>
+</tr>
+</tbody></table>
+<h2 id="6-8-小结"><a href="#6-8-小结" class="headerlink" title="6.8 小结"></a>6.8 小结</h2><p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171929306.png" alt="image-20220717190902117"></p>
+<p>&#x3D;&#x3D;面试中常考点：B+树和B-树的区别、B+树和Hash的区别&#x3D;&#x3D;</p>
+<h2 id="6-9-附录：算法的时间复杂度"><a href="#6-9-附录：算法的时间复杂度" class="headerlink" title="6.9 附录：算法的时间复杂度"></a>6.9 附录：算法的时间复杂度</h2><p>同一问题可用不同算法解决，而一个算法的质量优劣将影响到算法乃至程序的效率。算法分析的目的在于选择合适算法和改进算法。</p>
+<p><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/img/202207171929602.png" alt="image-20220715232212165"></p>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta"><i class="fas fa-circle-user fa-fw"></i>文章作者: </span><span class="post-copyright-info"><a href="https://blog.dalicoding.fun">Leo</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta"><i class="fas fa-square-arrow-up-right fa-fw"></i>文章链接: </span><span class="post-copyright-info"><a href="https://blog.dalicoding.fun/2024/04/05/MySQL%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/%E7%AC%AC04%E7%AB%A0_%E7%B4%A2%E5%BC%95%E7%9A%84%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">https://blog.dalicoding.fun/2024/04/05/MySQL从入门到入土/第04章_索引的数据结构/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta"><i class="fas fa-circle-exclamation fa-fw"></i>版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://blog.dalicoding.fun" target="_blank">Leo的博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/MySQL/">MySQL</a></div><div class="post_share"><div class="social-share" data-image="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/images/2023/7/202403311909521.jpg" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/sharejs/dist/js/social-share.min.js" defer></script></div></div><div class="post-reward"><div class="reward-button"><i class="fas fa-qrcode"></i>赞助</div><div class="reward-main"><ul class="reward-all"><li class="reward-item"><a href="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/images/2023/7/202404041655138.jpg" target="_blank"><img class="post-qr-code-img" src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/images/2023/7/202404041655138.jpg" alt="wechat"/></a><div class="post-qr-code-desc">wechat</div></li><li class="reward-item"><a href="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/images/2023/7/202404041655057.jpg" target="_blank"><img class="post-qr-code-img" src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/images/2023/7/202404041655057.jpg" alt="alipay"/></a><div class="post-qr-code-desc">alipay</div></li></ul></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/2024/04/05/MySQL%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/%E7%AC%AC02%E7%AB%A0_%E9%80%BB%E8%BE%91%E6%9E%B6%E6%9E%84%E5%89%96%E6%9E%90/" title="二、逻辑架构剖析"><img class="cover" src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/images/2023/7/202403311909053.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">二、逻辑架构剖析</div></div></a></div><div class="next-post pull-right"><a href="/2024/04/05/MySQL%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/%E7%AC%AC03%E7%AB%A0_%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/" title="三、存储引擎"><img class="cover" src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/images/2023/7/202403311909053.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">三、存储引擎</div></div></a></div></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><div><a href="/2024/04/05/MySQL%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/%E7%AC%AC01%E7%AB%A0_MySQL%E7%9A%84%E6%95%B0%E6%8D%AE%E7%9B%AE%E5%BD%95/" title="一、MySQL的数据目录"><img class="cover" src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/images/2023/7/202403311910777.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-05</div><div class="title">一、MySQL的数据目录</div></div></a></div><div><a href="/2024/04/05/MySQL%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/%E7%AC%AC03%E7%AB%A0_%E5%AD%98%E5%82%A8%E5%BC%95%E6%93%8E/" title="三、存储引擎"><img class="cover" src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/images/2023/7/202403311909053.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-05</div><div class="title">三、存储引擎</div></div></a></div><div><a href="/2024/04/05/MySQL%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/%E7%AC%AC02%E7%AB%A0_%E9%80%BB%E8%BE%91%E6%9E%B6%E6%9E%84%E5%89%96%E6%9E%90/" title="二、逻辑架构剖析"><img class="cover" src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/images/2023/7/202403311909053.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-05</div><div class="title">二、逻辑架构剖析</div></div></a></div><div><a href="/2024/04/05/MySQL%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/%E7%AC%AC06%E7%AB%A0_%E7%B4%A2%E5%BC%95%E7%9A%84%E5%88%9B%E5%BB%BA%E4%B8%8E%E8%AE%BE%E8%AE%A1%E5%8E%9F%E5%88%99/" title="六、索引的创建与设计原则"><img class="cover" src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/images/2023/7/202403311909521.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-05</div><div class="title">六、索引的创建与设计原则</div></div></a></div><div><a href="/2024/04/05/MySQL%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/%E7%AC%AC05%E7%AB%A0_InnoDB%E6%95%B0%E6%8D%AE%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84/" title="五、InnoDB数据存储结构"><img class="cover" src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/images/2023/7/202403311909053.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-05</div><div class="title">五、InnoDB数据存储结构</div></div></a></div><div><a href="/2024/04/05/MySQL%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/%E7%AC%AC07%E7%AB%A0_%E6%80%A7%E8%83%BD%E5%88%86%E6%9E%90%E5%B7%A5%E5%85%B7%E7%9A%84%E4%BD%BF%E7%94%A8/" title="七、性能分析工具的使用"><img class="cover" src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/images/2023/7/202403311910777.jpg" alt="cover"><div class="content is-center"><div class="date"><i class="far fa-calendar-alt fa-fw"></i> 2024-04-05</div><div class="title">七、性能分析工具的使用</div></div></a></div></div></div><hr class="custom-hr"/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="twikoo-wrap"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/images/2023/7/202403221853832.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Leo</div><div class="author-info__description">Leo的博客</div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">24</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/LiXuYangISZ"><i class="fab fa-github"></i><span>🛴前往小家...</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/LiXuYangISZ" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a><a class="social-icon" href="/img/WeChatQRCode.jpg" target="_blank" title="icon-weixin"><i class="微信" style="color: faa-tada;"></i></a><a class="social-icon" href="https://res.abeim.cn/api/qq/?qq=2422737092" target="_blank" title="icon-QQ"><i class="QQ" style="color: faa-tada;"></i></a><a class="social-icon" href="https://space.bilibili.com/434261812" target="_blank" title="icon-bilibili"><i class="B站" style="color: faa-tada;"></i></a><a class="social-icon" href="mailto:2422737092@qq.com" target="_blank" title="icon-youxiang"><i class="QQ邮箱" style="color: faa-tada;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content"><center>主域名：<br><a href="https://blog.dalicoding.fun"><b><font color="#5ea6e5">欢迎来到Leo的博客~</font></b></a></center></div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%BD%BF%E7%94%A8%E7%B4%A2%E5%BC%95"><span class="toc-number">1.</span> <span class="toc-text">1. 为什么使用索引</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#2%E3%80%81%E7%B4%A2%E5%BC%95%E5%8F%8A%E5%85%B6%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="toc-number">2.</span> <span class="toc-text">2、索引及其优缺点</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#2-1-%E7%B4%A2%E5%BC%95%E6%A6%82%E8%BF%B0"><span class="toc-number">2.1.</span> <span class="toc-text">2.1 索引概述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-2-%E4%BC%98%E7%82%B9"><span class="toc-number">2.2.</span> <span class="toc-text">2.2 优点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#2-3-%E7%BC%BA%E7%82%B9"><span class="toc-number">2.3.</span> <span class="toc-text">2.3 缺点</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#3-InnoDB-%E4%B8%AD%E7%B4%A2%E5%BC%95%E7%9A%84%E6%8E%A8%E6%BC%94"><span class="toc-number">3.</span> <span class="toc-text">3. InnoDB 中索引的推演</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#3-1-%E7%B4%A2%E5%BC%95%E4%B9%8B%E5%89%8D%E7%9A%84%E6%9F%A5%E6%89%BE"><span class="toc-number">3.1.</span> <span class="toc-text">3.1 索引之前的查找</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-1-%E5%9C%A8%E4%B8%80%E4%B8%AA%E9%A1%B5%E4%B8%AD%E7%9A%84%E6%9F%A5%E6%89%BE"><span class="toc-number">3.1.1.</span> <span class="toc-text">3.1.1 在一个页中的查找</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-1-2-%E5%9C%A8%E5%BE%88%E5%A4%9A%E9%A1%B5%E4%B8%AD%E6%9F%A5%E6%89%BE"><span class="toc-number">3.1.2.</span> <span class="toc-text">3.1.2 在很多页中查找</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-2-%E8%AE%BE%E8%AE%A1%E7%B4%A2%E5%BC%95"><span class="toc-number">3.2.</span> <span class="toc-text">3.2 设计索引</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-1%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84%E7%B4%A2%E5%BC%95%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%A1%88"><span class="toc-number">3.2.1.</span> <span class="toc-text">3.2.1一个简单的索引设计方案</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-2-2-InnoDB-%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E6%96%B9%E6%A1%88"><span class="toc-number">3.2.2.</span> <span class="toc-text">3.2.2 InnoDB 中的索引方案</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%91%A0-%E8%BF%AD%E4%BB%A3-1-%E6%AC%A1%EF%BC%9A%E7%9B%AE%E5%BD%95%E9%A1%B9%E7%BA%AA%E5%BD%95%E7%9A%84%E9%A1%B5"><span class="toc-number">3.2.2.1.</span> <span class="toc-text">① 迭代 1 次：目录项纪录的页</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%91%A1-%E8%BF%AD%E4%BB%A3-2-%E6%AC%A1%EF%BC%9A%E5%A4%9A%E4%B8%AA%E7%9B%AE%E5%BD%95%E9%A1%B9%E7%BA%AA%E5%BD%95%E7%9A%84%E9%A1%B5"><span class="toc-number">3.2.2.2.</span> <span class="toc-text">② 迭代 2 次：多个目录项纪录的页</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%91%A2-%E8%BF%AD%E4%BB%A3-3-%E6%AC%A1%EF%BC%9A%E7%9B%AE%E5%BD%95%E9%A1%B9%E8%AE%B0%E5%BD%95%E9%A1%B5%E7%9A%84%E7%9B%AE%E5%BD%95%E9%A1%B5"><span class="toc-number">3.2.2.3.</span> <span class="toc-text">③ 迭代 3 次：目录项记录页的目录页</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E2%91%A3-B-Tree"><span class="toc-number">3.2.2.4.</span> <span class="toc-text">④ B+Tree</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-3-%E5%B8%B8%E8%A7%81%E7%B4%A2%E5%BC%95%E6%A6%82%E5%BF%B5"><span class="toc-number">3.3.</span> <span class="toc-text">3.3 常见索引概念</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-1-%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95"><span class="toc-number">3.3.1.</span> <span class="toc-text">3.3.1 聚簇索引</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-2-%E4%BA%8C%E7%BA%A7%E7%B4%A2%E5%BC%95%EF%BC%88%E8%BE%85%E5%8A%A9%E7%B4%A2%E5%BC%95%E3%80%81%E9%9D%9E%E8%81%9A%E7%B0%87%E7%B4%A2%E5%BC%95%EF%BC%89"><span class="toc-number">3.3.2.</span> <span class="toc-text">3.3.2 二级索引（辅助索引、非聚簇索引）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-3-3-%E8%81%94%E5%90%88%E7%B4%A2%E5%BC%95"><span class="toc-number">3.3.3.</span> <span class="toc-text">3.3.3 联合索引</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#3-4-InnoDB-%E7%9A%84-B-%E6%A0%91%E7%B4%A2%E5%BC%95%E7%9A%84%E6%B3%A8%E6%84%8F%E4%BA%8B%E9%A1%B9"><span class="toc-number">3.4.</span> <span class="toc-text">3.4 InnoDB 的 B+ 树索引的注意事项</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#4-MyISAM-%E4%B8%AD%E7%9A%84%E7%B4%A2%E5%BC%95%E6%96%B9%E6%A1%88"><span class="toc-number">4.</span> <span class="toc-text">4. MyISAM 中的索引方案</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#4-1-MyISAM-%E7%B4%A2%E5%BC%95%E7%9A%84%E5%8E%9F%E7%90%86"><span class="toc-number">4.1.</span> <span class="toc-text">4.1 MyISAM 索引的原理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#4-2-MyISAM-%E4%B8%8E-InnoDB-%E5%AF%B9%E6%AF%94"><span class="toc-number">4.2.</span> <span class="toc-text">4.2 MyISAM 与 InnoDB 对比</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#5-%E7%B4%A2%E5%BC%95%E7%9A%84%E4%BB%A3%E4%BB%B7"><span class="toc-number">5.</span> <span class="toc-text">5. 索引的代价</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#6-MySQL-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84%E9%80%89%E6%8B%A9%E7%9A%84%E5%90%88%E7%90%86%E6%80%A7"><span class="toc-number">6.</span> <span class="toc-text">6. MySQL 数据结构选择的合理性</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#6-1-%E5%85%A8%E8%A1%A8%E9%81%8D%E5%8E%86"><span class="toc-number">6.1.</span> <span class="toc-text">6.1 全表遍历</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-2-Hash-%E7%BB%93%E6%9E%84"><span class="toc-number">6.2.</span> <span class="toc-text">6.2 Hash 结构</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-3-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91"><span class="toc-number">6.3.</span> <span class="toc-text">6.3 二叉搜索树</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-4-AVL-%E6%A0%91"><span class="toc-number">6.4.</span> <span class="toc-text">6.4 AVL 树</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-5-B-Tree"><span class="toc-number">6.5.</span> <span class="toc-text">6.5 B-Tree</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-6-B-Tree"><span class="toc-number">6.6.</span> <span class="toc-text">6.6 B+Tree</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-7-R-%E6%A0%91"><span class="toc-number">6.7.</span> <span class="toc-text">6.7 R 树</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-8-%E5%B0%8F%E7%BB%93"><span class="toc-number">6.8.</span> <span class="toc-text">6.8 小结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#6-9-%E9%99%84%E5%BD%95%EF%BC%9A%E7%AE%97%E6%B3%95%E7%9A%84%E6%97%B6%E9%97%B4%E5%A4%8D%E6%9D%82%E5%BA%A6"><span class="toc-number">6.9.</span> <span class="toc-text">6.9 附录：算法的时间复杂度</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2024/04/05/Redis%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/%E7%AC%AC02%E7%AB%A0_%E7%9F%AD%E4%BF%A1%E7%99%BB%E5%BD%95/" title="一、短信登录"><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/images/2023/7/202403311910777.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="一、短信登录"/></a><div class="content"><a class="title" href="/2024/04/05/Redis%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/%E7%AC%AC02%E7%AB%A0_%E7%9F%AD%E4%BF%A1%E7%99%BB%E5%BD%95/" title="一、短信登录">一、短信登录</a><time datetime="2024-04-05T06:46:58.000Z" title="发表于 2024-04-05 14:46:58">2024-04-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/05/Redis%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/%E7%AC%AC05%E7%AB%A0_%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/" title="四、分布式锁"><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/images/2023/7/202403311909053.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="四、分布式锁"/></a><div class="content"><a class="title" href="/2024/04/05/Redis%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/%E7%AC%AC05%E7%AB%A0_%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81/" title="四、分布式锁">四、分布式锁</a><time datetime="2024-04-05T06:46:58.000Z" title="发表于 2024-04-05 14:46:58">2024-04-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/05/Redis%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/%E7%AC%AC03%E7%AB%A0_%E5%95%86%E6%88%B7%E6%9F%A5%E8%AF%A2%E7%BC%93%E5%AD%98/" title="二、商品查询缓存（缓存基本使用 | 缓存更新 | 缓存穿透 | 缓存雪崩 | 缓存击穿 | Redis缓存工具类）"><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/images/2023/7/202403311909521.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="二、商品查询缓存（缓存基本使用 | 缓存更新 | 缓存穿透 | 缓存雪崩 | 缓存击穿 | Redis缓存工具类）"/></a><div class="content"><a class="title" href="/2024/04/05/Redis%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/%E7%AC%AC03%E7%AB%A0_%E5%95%86%E6%88%B7%E6%9F%A5%E8%AF%A2%E7%BC%93%E5%AD%98/" title="二、商品查询缓存（缓存基本使用 | 缓存更新 | 缓存穿透 | 缓存雪崩 | 缓存击穿 | Redis缓存工具类）">二、商品查询缓存（缓存基本使用 | 缓存更新 | 缓存穿透 | 缓存雪崩 | 缓存击穿 | Redis缓存工具类）</a><time datetime="2024-04-05T06:46:58.000Z" title="发表于 2024-04-05 14:46:58">2024-04-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/05/Redis%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/%E7%AC%AC06%E7%AB%A0_%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81-redission/" title="五、分布式锁-Redission"><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/images/2023/7/202403311909053.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="五、分布式锁-Redission"/></a><div class="content"><a class="title" href="/2024/04/05/Redis%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/%E7%AC%AC06%E7%AB%A0_%E5%88%86%E5%B8%83%E5%BC%8F%E9%94%81-redission/" title="五、分布式锁-Redission">五、分布式锁-Redission</a><time datetime="2024-04-05T06:46:58.000Z" title="发表于 2024-04-05 14:46:58">2024-04-05</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2024/04/05/Redis%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/%E7%AC%AC04%E7%AB%A0_%E4%BC%98%E6%83%A0%E5%88%B8%E7%A7%92%E6%9D%80/" title="三、优惠券秒杀"><img src="https://blog-photos-lxy.oss-cn-hangzhou.aliyuncs.com/images/2023/7/202403311909053.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="三、优惠券秒杀"/></a><div class="content"><a class="title" href="/2024/04/05/Redis%E4%BB%8E%E5%85%A5%E9%97%A8%E5%88%B0%E5%85%A5%E5%9C%9F/%E7%AC%AC04%E7%AB%A0_%E4%BC%98%E6%83%A0%E5%88%B8%E7%A7%92%E6%9D%80/" title="三、优惠券秒杀">三、优惠券秒杀</a><time datetime="2024-04-05T06:46:58.000Z" title="发表于 2024-04-05 14:46:58">2024-04-05</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2024 By Leo</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div><div class="footer_custom_text">I wish you to become your own sun, no need to rely on who's light.<p><a target="_blank" href="https://hexo.io/"><img src="https://img.shields.io/badge/Frame-Hexo-blue?style=flat&logo=hexo" title="博客框架为Hexo"></a>&nbsp;<a target="_blank" href="https://butterfly.js.org/"><img src="https://img.shields.io/badge/Theme-Butterfly-6513df?style=flat&logo=bitdefender" title="主题采用butterfly"></a>&nbsp;<a target="_blank" href="https://www.jsdelivr.com/"><img src="https://img.shields.io/badge/CDN-jsDelivr-orange?style=flat&logo=jsDelivr" title="本站使用JsDelivr为静态资源提供CDN加速"></a> &nbsp;<a target="_blank" rel="noopener" href="https://beian.miit.gov.cn/"><img  src="https://img.shields.io/badge/%E8%B1%ABICP%E5%A4%87-2023001225-%23c41b6c" title="本站已加入ICP豪华套餐，豫ICP备2023001225号"></a>&nbsp;   <a target="_blank" href="https://vercel.com/ "><img src="https://img.shields.io/badge/Hosted-Vervel-brightgreen?style=flat&logo=Vercel" title="本站采用双线部署，默认线路托管于Vercel"></a>&nbsp;<a target="_blank" href="https://vercel.com/ "><img src="https://img.shields.io/badge/Hosted-Coding-0cedbe?style=flat&logo=Codio" title="本站采用双线部署，联通线路托管于Coding"></a>&nbsp;<a target="_blank" href="https://github.com/"><img src="https://img.shields.io/badge/Source-Github-d021d6?style=flat&logo=GitHub" title="本站项目由Gtihub托管"></a>&nbsp;<a target="_blank" href="http://creativecommons.org/licenses/by-nc-sa/4.0/"><img src="https://img.shields.io/badge/Copyright-BY--NC--SA%204.0-d42328?style=flat&logo=Claris" title="本站采用知识共享署名-非商业性使用-相同方式共享4.0国际许可协议进行许可"></a></p></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js?v=4.13.0"></script><script src="/js/main.js?v=4.13.0"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@5.0.33/dist/fancybox/fancybox.umd.min.js"></script><div class="js-pjax"><script>(() => {
+  const getCount = () => {
+    const countELement = document.getElementById('twikoo-count')
+    if(!countELement) return
+    twikoo.getCommentsCount({
+      envId: 'https://my-twikoo-orpin.vercel.app/',
+      region: 'ap-hangzhou',
+      urls: [window.location.pathname],
+      includeReply: false
+    }).then(res => {
+      countELement.textContent = res[0].count
+    }).catch(err => {
+      console.error(err)
+    })
+  }
+
+  const init = () => {
+    twikoo.init(Object.assign({
+      el: '#twikoo-wrap',
+      envId: 'https://my-twikoo-orpin.vercel.app/',
+      region: 'ap-hangzhou',
+      onCommentLoaded: () => {
+        btf.loadLightbox(document.querySelectorAll('#twikoo .tk-content img:not(.tk-owo-emotion)'))
+      }
+    }, null))
+
+    GLOBAL_CONFIG_SITE.isPost && getCount()
+  }
+
+  const loadTwikoo = () => {
+    if (typeof twikoo === 'object') setTimeout(init,0)
+    else getScript('https://cdn.jsdelivr.net/npm/twikoo@1.6.31/dist/twikoo.all.min.js').then(init)
+  }
+
+  if ('Twikoo' === 'Twikoo' || !true) {
+    if (true) btf.loadComment(document.getElementById('twikoo-wrap'), loadTwikoo)
+    else loadTwikoo()
+  } else {
+    window.loadOtherComment = loadTwikoo
+  }
+})()</script></div><script>window.addEventListener('load', () => {
+  const changeContent = (content) => {
+    if (content === '') return content
+
+    content = content.replace(/<img.*?src="(.*?)"?[^\>]+>/ig, '[图片]') // replace image link
+    content = content.replace(/<a[^>]+?href=["']?([^"']+)["']?[^>]*>([^<]+)<\/a>/gi, '[链接]') // replace url
+    content = content.replace(/<pre><code>.*?<\/pre>/gi, '[代码]') // replace code
+    content = content.replace(/<[^>]+>/g,"") // remove html tag
+
+    if (content.length > 150) {
+      content = content.substring(0,150) + '...'
+    }
+    return content
+  }
+
+  const getComment = () => {
+    const runTwikoo = () => {
+      twikoo.getRecentComments({
+        envId: 'https://my-twikoo-orpin.vercel.app/',
+        region: 'ap-hangzhou',
+        pageSize: 6,
+        includeReply: true
+      }).then(function (res) {
+        const twikooArray = res.map(e => {
+          return {
+            'content': changeContent(e.comment),
+            'avatar': e.avatar,
+            'nick': e.nick,
+            'url': e.url + '#' + e.id,
+            'date': new Date(e.created).toISOString()
+          }
+        })
+
+        saveToLocal.set('twikoo-newest-comments', JSON.stringify(twikooArray), 10/(60*24))
+        generateHtml(twikooArray)
+      }).catch(function (err) {
+        const $dom = document.querySelector('#card-newest-comments .aside-list')
+        $dom.textContent= "无法获取评论，请确认相关配置是否正确"
+      })
+    }
+
+    if (typeof twikoo === 'object') {
+      runTwikoo()
+    } else {
+      getScript('https://cdn.jsdelivr.net/npm/twikoo@1.6.31/dist/twikoo.all.min.js').then(runTwikoo)
+    }
+  }
+
+  const generateHtml = array => {
+    let result = ''
+
+    if (array.length) {
+      for (let i = 0; i < array.length; i++) {
+        result += '<div class=\'aside-list-item\'>'
+
+        if (true) {
+          const name = 'src'
+          result += `<a href='${array[i].url}' class='thumbnail'><img ${name}='${array[i].avatar}' alt='${array[i].nick}'></a>`
+        }
+        
+        result += `<div class='content'>
+        <a class='comment' href='${array[i].url}' title='${array[i].content}'>${array[i].content}</a>
+        <div class='name'><span>${array[i].nick} / </span><time datetime="${array[i].date}">${btf.diffDate(array[i].date, true)}</time></div>
+        </div></div>`
+      }
+    } else {
+      result += '没有评论'
+    }
+
+    let $dom = document.querySelector('#card-newest-comments .aside-list')
+    $dom && ($dom.innerHTML= result)
+    window.lazyLoadInstance && window.lazyLoadInstance.update()
+    window.pjax && window.pjax.refresh($dom)
+  }
+
+  const newestCommentInit = () => {
+    if (document.querySelector('#card-newest-comments .aside-list')) {
+      const data = saveToLocal.get('twikoo-newest-comments')
+      if (data) {
+        generateHtml(JSON.parse(data))
+      } else {
+        getComment()
+      }
+    }
+  }
+
+  newestCommentInit()
+  document.addEventListener('pjax:complete', newestCommentInit)
+})</script><script defer src="/live2d-widget/autoload.js"></script><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1.1.3/dist/click-heart.min.js" async="async" mobile="false"></script><script src="https://cdn.jsdelivr.net/npm/pjax@0.2.8/pjax.min.js"></script><script>let pjaxSelectors = ["head > title","#config-diff","#body-wrap","#rightside-config-hide","#rightside-config-show",".js-pjax"]
+
+var pjax = new Pjax({
+  elements: 'a:not([target="_blank"]):not([href="/music/"]):not([href="/no-pjax/"])',
+  selectors: pjaxSelectors,
+  cacheBust: false,
+  analytics: false,
+  scrollRestoration: false
+})
+
+document.addEventListener('pjax:send', function () {
+
+  // removeEventListener
+  btf.removeGlobalFnEvent('pjax')
+  btf.removeGlobalFnEvent('themeChange')
+
+  document.getElementById('rightside').classList.remove('rightside-show')
+  
+  if (window.aplayers) {
+    for (let i = 0; i < window.aplayers.length; i++) {
+      if (!window.aplayers[i].options.fixed) {
+        window.aplayers[i].destroy()
+      }
+    }
+  }
+
+  typeof typed === 'object' && typed.destroy()
+
+  //reset readmode
+  const $bodyClassList = document.body.classList
+  $bodyClassList.contains('read-mode') && $bodyClassList.remove('read-mode')
+
+  typeof disqusjs === 'object' && disqusjs.destroy()
+})
+
+document.addEventListener('pjax:complete', function () {
+  window.refreshFn()
+
+  document.querySelectorAll('script[data-pjax]').forEach(item => {
+    const newScript = document.createElement('script')
+    const content = item.text || item.textContent || item.innerHTML || ""
+    Array.from(item.attributes).forEach(attr => newScript.setAttribute(attr.name, attr.value))
+    newScript.appendChild(document.createTextNode(content))
+    item.parentNode.replaceChild(newScript, item)
+  })
+
+  GLOBAL_CONFIG.islazyload && window.lazyLoadInstance.update()
+
+  typeof panguInit === 'function' && panguInit()
+
+  // google analytics
+  typeof gtag === 'function' && gtag('config', '', {'page_path': window.location.pathname});
+
+  // baidu analytics
+  typeof _hmt === 'object' && _hmt.push(['_trackPageview',window.location.pathname]);
+
+  typeof loadMeting === 'function' && document.getElementsByClassName('aplayer').length && loadMeting()
+
+  // prismjs
+  typeof Prism === 'object' && Prism.highlightAll()
+})
+
+document.addEventListener('pjax:error', e => {
+  if (e.request.status === 404) {
+    pjax.loadUrl('/404.html')
+  }
+})</script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script><div id="algolia-search"><div class="search-dialog"><nav class="search-nav"><span class="search-dialog-title">搜索</span><button class="search-close-button"><i class="fas fa-times"></i></button></nav><div class="search-wrap"><div id="algolia-search-input"></div><hr/><div id="algolia-search-results"><div id="algolia-hits"></div><div id="algolia-pagination"></div><div id="algolia-info"><div class="algolia-stats"></div><div class="algolia-poweredBy"></div></div></div></div></div><div id="search-mask"></div><script src="https://cdn.jsdelivr.net/npm/algoliasearch@4.22.1/dist/algoliasearch-lite.umd.min.js"></script><script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4.65.0/dist/instantsearch.production.min.js"></script><script src="/js/search/algolia.js?v=4.13.0"></script></div></div></body></html>
